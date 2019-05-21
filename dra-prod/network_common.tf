@@ -25,23 +25,19 @@ resource "google_compute_router_nat" "simple-nat" {
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 }
 
+# https://www.googleapis.com/compute/v1/projects/${var.project["id"]}/global/addresses/google-managed-services-default
 resource "google_compute_global_address" "private_ip_address" {
   provider      = "google-beta"
-  name          = "private-ip-address"
+  name          = "google-managed-services-default"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
-  prefix_length = 16
+  prefix_length = 20
+  description   = "IP Range for peer networks."
   network       = "https://www.googleapis.com/compute/v1/projects/${var.project["id"]}/global/networks/default"
 }
 
-resource "google_compute_network_peering" "cloudsql-postgres-googleapis-com" {
-  name         = "cloudsql-postgres-googleapis-com"
-  network      = "https://www.googleapis.com/compute/v1/projects/${var.project["id"]}/global/networks/default"
-  peer_network = "https://www.googleapis.com/compute/v1/projects/speckle-umbrella-pg-10/global/networks/cloud-sql-network-559872861378-e9685cc4efde17c8"
-}
-
-resource "google_service_networking_connection" "private_vpc_connection" {
-  count                   = 0
+# https://www.googleapis.com/compute/v1/projects/${var.project["id"]}/global/networks/default:servicenetworking.googleapis.com
+resource "google_service_networking_connection" "servicenetworking" {
   provider                = "google-beta"
   network                 = "https://www.googleapis.com/compute/v1/projects/${var.project["id"]}/global/networks/default"
   service                 = "servicenetworking.googleapis.com"

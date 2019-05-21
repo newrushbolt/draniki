@@ -3,7 +3,7 @@ resource "google_sql_database_instance" "draniki-postgres" {
   region = "${var.project["region"]}"
 
   depends_on = [
-    "google_service_networking_connection.private_vpc_connection",
+    "google_service_networking_connection.servicenetworking",
   ]
 
   database_version = "POSTGRES_9_6"
@@ -49,10 +49,11 @@ resource "google_sql_database_instance" "draniki-postgres-slave" {
 
   depends_on = [
     "google_sql_database_instance.draniki-postgres",
-    "google_service_networking_connection.private_vpc_connection",
+    "google_service_networking_connection.servicenetworking",
   ]
 
-  database_version = "POSTGRES_9_6"
+  database_version     = "POSTGRES_9_6"
+  master_instance_name = "${google_sql_database_instance.draniki-postgres.name}"
 
   settings {
     activation_policy = "ALWAYS"
